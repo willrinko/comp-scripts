@@ -36,10 +36,12 @@ for user in $(cut -d: -f1 /etc/passwd); do
         echo "Ensuring $user is a local user..."
         usermod -G "$LOCAL_GROUP" "$user" || echo "Failed to modify $user."
     else
-        echo "User $user is unauthorized. Marking for deletion."
+        # User is unauthorized, disable them
+        echo "User $user is unauthorized. Locking the account for investigation."
         pkill -u "$user" 2>/dev/null || echo "No processes to kill for $user."
-        userdel -r "$user" 2>/dev/null || echo "Failed to delete user $user."
-        echo "User $user removed (if applicable)."
+        usermod --lock "$user" || echo "Failed to lock user $user."
+        usermod --shell /sbin/nologin "$user" || echo "Failed to disable shell for $user."
+        echo "User $user locked and shell disabled (evidence preserved)."
     fi
 done
 create_user_if_missing() {
