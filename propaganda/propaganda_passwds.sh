@@ -19,7 +19,6 @@ is_in_list() {
 }
 for user in $(cut -d: -f1 /etc/passwd); do
     uid=$(id -u "$user")
-
     # Skip system accounts and out-of-scope users
     if [ "$uid" -lt 1000 ] && [ "$uid" -ne 0 ]; then
         echo "Skipping system account: $user"
@@ -29,7 +28,6 @@ for user in $(cut -d: -f1 /etc/passwd); do
         echo "Skipping out-of-scope user: $user"
         continue
     fi
-
     if is_in_list "$user" "${ADMIN_USERS[@]}"; then
         echo "Ensuring $user is an administrator..."
         usermod -aG "$ADMIN_GROUP" "$user" || echo "Failed to modify $user."
@@ -38,10 +36,11 @@ for user in $(cut -d: -f1 /etc/passwd); do
         usermod -G "$LOCAL_GROUP" "$user" || echo "Failed to modify $user."
     else
         # User is not authorized, remove them
-        echo "User $user is unauthorized. Marking for deletion."
+        echo "User $user is unauthorized. Locking the account for investigation."
         pkill -u "$user" 2>/dev/null || echo "No processes to kill for $user."
-        userdel -r "$user" 2>/dev/null || echo "Failed to delete user $user."
-        echo "User $user removed (if applicable)."
+        usermod --lock "$user" || echo "Failed to lock user $user."
+        usermod --shell /sbin/nologin "$user" || echo "Failed to disable shell for $user."
+        echo "User $user locked and shell disabled (evidence preserved)."
     fi
 done
 create_user_if_missing() {
