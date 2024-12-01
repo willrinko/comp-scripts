@@ -1,6 +1,6 @@
 #!/bin/bash
 # Will Rinko - Propaganda Manage Accounts - 11.19.24
-OUT_OF_SCOPE_USERS=("whiteteam" "grayteam" "blackteam" "dd-agent" "root")
+OUT_OF_SCOPE_USERS=("whiteteam" "grayteam" "blackteam" "dd-agent" "root" "toor")
 ADMIN_USERS=("president" "vicepresident" "defenseminister" "secretary")
 LOCAL_USERS=("general" "admiral" "judge" "bodyguard" "cabinetofficial" "treasurer")
 ADMIN_GROUP="sudo"
